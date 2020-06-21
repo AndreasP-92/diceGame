@@ -1,5 +1,6 @@
 package com.example.diceout;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -16,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -37,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     int die1;
     int die2;
     int die3;
+
+//    Field to hold the score text
+
+    TextView scoreText;
 
 //    ArrayList to hold all three dice values
 
@@ -66,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         rollResult = findViewById(R.id.rollResult);
         rollButton = (Button) findViewById(R.id.rollButton);
+        scoreText = (TextView) findViewById(R.id.scoreText);
 
 
 
@@ -79,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView die1Image = findViewById(R.id.die1Image);
         ImageView die2Image = findViewById(R.id.die2Image);
-        ImageView die3Image = findViewById(R.id.die3image);
+        ImageView die3Image = findViewById(R.id.die3Image);
 
         diceImageViews = new ArrayList<ImageView>();
         diceImageViews.add(die1Image);
@@ -90,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void rollDice(View v){
-        rollResult.setText("Clicked!");
+//        rollResult.setText("Clicked!");
 
 //        roll dice
         die1 = rand.nextInt(6)+1;
@@ -103,13 +111,41 @@ public class MainActivity extends AppCompatActivity {
         dice.add(die2);
         dice.add(die3);
 
+        for(int diceOfSet = 0; diceOfSet < 3; diceOfSet++){
+            String imageName = "die_" + dice.get(diceOfSet) + ".png";
+
+            try{
+                InputStream stream = getAssets().open(imageName);
+                Drawable d = Drawable.createFromStream(stream, null);
+                diceImageViews.get(diceOfSet).setImageDrawable(d);
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
 
 
 //        Build message with the result
-        String msg = "You rolled a " + die1 + " a " + die2 + " a " + die3;
+//        String msg = "You rolled a " + die1 + ", a " + die2 + " and a " + die3;
 
+            String msg;
+
+        if(die1 == die2 && die1 == die3){
+//            tripples
+            int scoreDelta = die1 * 100;
+            msg = "You've scored a triple " + die1 + "! You score " + scoreDelta + " points!";
+            score += scoreDelta;
+        } else if(die1 == die2 || die2 == die3 || die1 == die3){
+//            Double
+             msg = "You've rolled 50 points!";
+             score += 50;
+
+        }else {
+            msg = "You didn't score this roll. Try again!";
+        }
 //        Update the app to display the result message
-        rollResult.setText(die1);
+        rollResult.setText(msg);
+        scoreText.setText("Score: " + score);
 
 
     }
